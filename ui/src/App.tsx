@@ -1,28 +1,38 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import './App.css';
+import { SearchBar } from './search/SearchBar';
 
 function App() {
-  const [text, setText] = useState('');
+  const [autocompleteOptions, setAutocompleteOptions] = useState<string[]>([]);
 
-  async function getText() {
+  function searchBarChangeHandler(value: string) {
+    console.log(value);
+    if (value) getAutocomplete(value);
+    else setAutocompleteOptions([]);
+  }
+
+  async function getAutocomplete(value: string) {
     try {
-      const response = await axios.get('/api');
-      setText(response.data);
+      const response = await axios.get(`/api/autocomplete?searchQuery=${value}`);
+      setAutocompleteOptions(response.data);
     } catch (e) {
       console.error(e);
-      setText('Default Text');
+      setAutocompleteOptions([]);
     }
   }
 
   useEffect(() => {
-    if (!text) {
-      getText();
-    }
+    // Do things
   });
+
   return (
     <div className="App">
-      { text }
+      <h1>Autocomplete Application</h1>
+      <SearchBar
+        autocompleteOptions={autocompleteOptions}
+        change={searchBarChangeHandler}
+      />
     </div>
   );
 }
